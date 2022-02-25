@@ -103,8 +103,8 @@ def parse_status(home):
                 return (f'Изменился статус проверки '
                         f'работы "{homework_name}". {verdict}')
     except Exception:
-            logging.error('Недокументированный статус'
-                          'домашней работы в ответе API.')
+        logging.error('Недокументированный статус'
+                      'домашней работы в ответе API.')
 
 
 def check_tokens():
