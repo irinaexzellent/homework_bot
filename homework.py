@@ -101,19 +101,15 @@ def parse_status(home):
     """Извлекает из информации о конкретной домашней работе статус этой работы.
     Возвращает строку для отправки в Telegram чат
     """
-    try:
-        homework_name = home['homework_name']
-        homework_status = home['status']
+    
+    homework_name = home['homework_name']
+    homework_status = home['status']
 
-        if homework_status == 'approved':
-            verdict = HOMEWORK_STATUSES['approved']
-            return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-        elif homework_status == 'reviewing':
-            verdict = HOMEWORK_STATUSES['reviewing']
-            return f'Изменился статус проверки работы "{homework_name}". {verdict}'
-        elif homework_status == 'rejected':
-            verdict = HOMEWORK_STATUSES['rejected']
-            return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+    try:
+        for hw in HOMEWORK_STATUSES:
+            if hw == homework_status:
+                verdict = HOMEWORK_STATUSES['hw']
+                return f'Изменился статус проверки работы "{homework_name}". {verdict}'
     except Exception:
         logging.error('Недокументированный статус домашней работы'
                       'в ответе API.')
