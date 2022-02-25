@@ -4,7 +4,6 @@ import os
 import time
 import requests
 import telegram
-import datetime
 
 from dotenv import load_dotenv
 
@@ -41,7 +40,10 @@ def send_message(bot, message):
     bot -- экземпляр класса Bot,
     message -- текстовое сообщение - тип str
     """
-    return bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    try:
+        return bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    except Exception:
+        logging.error('Cбой при отправке сообщения в Telegram.')
 
 
 def get_api_answer(current_timestamp):
@@ -57,10 +59,22 @@ def get_api_answer(current_timestamp):
     try:
         homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
                                          params=params)
+        if homework_statuses.status_code == 200:
+            logging.info('Сервер выполнил запрос, как и ожидалось.')
+        elif homework_statuses.status_code == 100:
+            logging.info('Сервер подтверждает запрос.')
         answer = homework_statuses.json()
+        homework_statuses.status_code
         return answer
     except Exception:
-        logging.error('Недоступность эндпоинта.')
+        if homework_statuses.status_code == 300:
+            logging.error('Клиенту необходимо выполнить дальнейшие действия'
+                          'для завершения запроса.')
+        elif homework_statuses.status_code == 400:
+            logging.error('Клиент отправил неверный запрос.')
+        elif homework_statuses.status_code == 500:
+            logging.error('Серверу не удалось выполнить допустимый запрос'
+                          'из-за ошибки с сервером.')
 
 
 def check_response(response):
@@ -72,12 +86,15 @@ def check_response(response):
     id, status, approved, homework_name, reviewer_comment,
     date_updated, lesson_name
     """
-    list_homework = response['homeworks']
-    if (isinstance(list_homework, list)):
-        return list_homework
+    if 'homeworks' in response:
+        list_homework = response['homeworks']
+        if (isinstance(list_homework, list)):
+            return list_homework
+        else:
+            logging.info('Тип данных, полученного ответа,'
+                         'не соответвует ожидаемому.')
     else:
-        logging.info('Тип данных, полученного ответа,'
-                     'не соответвует ожидаемому.')
+        logging.error('Отсутствие ожидаемых ключей в ответе API.')
 
 
 def parse_status(home):
@@ -116,46 +133,36 @@ def check_tokens():
 def main():
     """Основная логика работы бота.
 
-    Сделать запрос к API.
-    Проверить ответ.
-    Если есть обновления —
+    1.Сделать запрос к API.
+    2.Проверить ответ.
+    3.Если есть обновления —
     получить статус работы из обновления и отправить сообщение в Telegram.
-    Подождать некоторое время и сделать новый запрос.
+    4.Подождать некоторое время и сделать новый запрос.
     """
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-
-    #current_timestamp = int(time.time())
-    now_datetime = datetime.datetime.now() - datetime.timedelta(30)
-    now = int(time.mktime(now_datetime.timetuple()))
-    a = now_datetime.timetuple()
-    b = time.strftime('%d.%m.%Y %H:%M', a)
-    print(b)
-
+    current_timestamp = int(time.time())
     check_variable = check_tokens()
 
     while check_variable:
         try:
-            resp = get_api_answer(now)
+            resp = get_api_answer(current_timestamp)
             print(resp)
-            check_answer = check_response(resp)
-            print(check_answer)
-            for i in check_answer:
-                mess = parse_status(i)
-                print(mess)
-                send_message(bot, mess)
-                logging.info('Удачная отправка сообщения в Telegram.')
-            #current_timestamp = int(time.time())
-            now = int(time.mktime(now_datetime.timetuple()))
-
-            time.sleep(RETRY_TIME)
+            if len(resp['homeworks']) != 0:
+                check_answer = check_response(resp)
+                for i in check_answer:
+                    mess = parse_status(i)
+                    send_message(bot, mess)
+                    logging.info('Удачная отправка сообщения в Telegram.')
+                current_timestamp = int(time.time())
+                time.sleep(RETRY_TIME)
+            else:
+                logging.info('Отсутствие в ответе новых статусов.')
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             send_message(bot, message)
             time.sleep(RETRY_TIME)
         else:
-            logging.error('Другие сбои при запросе к эндпоинту.')
-    else:
-        pass
+            logging.info('Код выполнен без ошибок.')
 
 
 if __name__ == '__main__':
