@@ -108,7 +108,8 @@ def parse_status(home):
         for hw in HOMEWORK_STATUSES.keys():
             if hw == homework_status:
                 verdict = HOMEWORK_STATUSES['hw']
-                return f'Изменился статус проверки работы "{homework_name}". {verdict}'
+                return (f'Изменился статус проверки '
+                        f'работы "{homework_name}". {verdict}')
     except Exception:
         logging.error('Недокументированный статус'
                       'домашней работы в ответе API.')
