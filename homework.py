@@ -35,7 +35,7 @@ logging.basicConfig(
 
 
 def send_message(bot, message):
-    """"Отправляет в Telegram чат сообщение.
+    """Отправляет в Telegram чат сообщение.
 
     Ключевые аргументы:
     bot -- экземпляр класса Bot,
@@ -45,7 +45,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
-    """"Возвращает ответ API.
+    """Возвращает ответ API.
 
     Ключевые аргументы:
     timestamp -- временная метка - текущее время,
@@ -70,7 +70,8 @@ def check_response(response):
     list_homework -- список домашних работ,
     каждый элемент списка - это словарь с ключами:
     id, status, approved, homework_name, reviewer_comment,
-    date_updated, lesson_name"""
+    date_updated, lesson_name
+    """
 
     list_homework = response['homeworks']
     if (isinstance(list_homework, list)):
@@ -82,7 +83,8 @@ def check_response(response):
 
 def parse_status(home):
     """Извлекает из информации о конкретной домашней работе статус этой работы.
-    Возвращает строку для отправки в Telegram чат"""
+    Возвращает строку для отправки в Telegram чат
+    """
 
     homework_name = home['homework_name']
     homework_status = home['status']
@@ -121,7 +123,8 @@ def main():
     Проверить ответ.
     Если есть обновления —
     получить статус работы из обновления и отправить сообщение в Telegram.
-    Подождать некоторое время и сделать новый запрос."""
+    Подождать некоторое время и сделать новый запрос.
+    """
 
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
