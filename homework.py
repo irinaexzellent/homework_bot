@@ -114,8 +114,8 @@ def parse_status(home):
         verdict = HOMEWORK_STATUSES['rejected']
         return f'Изменился статус проверки работы "{homework_name}". {verdict}'
     else:
-        logging.error('Недокументированный статус домашней работы,'
-                      'обнаруженный в ответе API.')
+        logging.error('недокументированный статус домашней работы'
+                      'в ответе API.')
 
 
 def check_tokens():
