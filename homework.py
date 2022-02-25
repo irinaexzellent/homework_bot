@@ -72,7 +72,6 @@ def check_response(response):
     id, status, approved, homework_name, reviewer_comment,
     date_updated, lesson_name
     """
-
     list_homework = response['homeworks']
     if (isinstance(list_homework, list)):
         return list_homework
@@ -85,7 +84,6 @@ def parse_status(home):
     """Извлекает из информации о конкретной домашней работе статус этой работы.
     Возвращает строку для отправки в Telegram чат
     """
-
     homework_name = home['homework_name']
     homework_status = home['status']
 
@@ -105,7 +103,6 @@ def parse_status(home):
 
 def check_tokens():
     """Проверяет доступность переменных окружения."""
-
     if 'PRACTICUM_TOKEN' in os.environ:
         if 'TELEGRAM_TOKEN' in os.environ:
             if 'TELEGRAM_CHAT_ID' in os.environ:
@@ -125,7 +122,6 @@ def main():
     получить статус работы из обновления и отправить сообщение в Telegram.
     Подождать некоторое время и сделать новый запрос.
     """
-
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
     #current_timestamp = int(time.time())
