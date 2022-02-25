@@ -81,17 +81,18 @@ def check_response(response):
     id, status, approved, homework_name, reviewer_comment,
     date_updated, lesson_name
     """
-    try:
-        list_homework = response['homeworks']
-        try:
+    if response:
+        if 'homeworks' in response:
+            list_homework = response['homeworks']
             if (isinstance(list_homework, list)):
                 return list_homework
-        except Exception:
-            logging.info('Тип данных, полученного ответа,'
-                         'не соответвует ожидаемому.')
-    except Exception:
-        logging.error('Отсутствие ожидаемых ключей в ответе API.')
-
+            else:
+                logging.info('Тип данных, полученного ответа,'
+                                 'имеет некорректный тип.')
+        else:
+            logging.info('Ответ API не содержит ключа "homeworks".')
+    else:
+        logging.info('Ответ API содержит пустой словарь.')
 
 def parse_status(home):
     """Извлекает из информации о конкретной домашней работе статус этой работы.
@@ -106,6 +107,9 @@ def parse_status(home):
                 verdict = HOMEWORK_STATUSES['hw']
                 return (f'Изменился статус проверки '
                         f'работы "{homework_name}". {verdict}')
+            else:
+                logging.error('Ответ API не содержит'
+                              'ключа "homewroks".')
     except Exception:
         logging.error('Недокументированный статус'
                       'домашней работы в ответе API.')
