@@ -58,7 +58,7 @@ def get_api_answer(current_timestamp):
 
     try:
         homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
-                                     params=params)
+                                         params=params)
         answer = homework_statuses.json()
         homework_statuses.status_code
         return answer
