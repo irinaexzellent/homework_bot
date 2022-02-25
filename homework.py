@@ -112,7 +112,8 @@ def check_tokens():
     try:
         for var in MANDATORY_ENV_VARS:
             if var not in os.environ:
-                raise EnvironmentError("Failed because {} is not set.".format(var))
+                raise EnvironmentError("Failed because"
+                                       "{} is not set.".format(var))
             else:
                 return True
     except Exception:
