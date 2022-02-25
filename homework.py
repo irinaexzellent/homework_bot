@@ -56,9 +56,9 @@ def get_api_answer(current_timestamp):
     """
     params = {'from_date': current_timestamp}
 
-    try:
-        homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
+    homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
                                          params=params)
+    try:
         if homework_statuses.status_code == 200:
             logging.info('Сервер выполнил запрос, как и ожидалось.')
         elif homework_statuses.status_code == 100:
@@ -86,14 +86,15 @@ def check_response(response):
     id, status, approved, homework_name, reviewer_comment,
     date_updated, lesson_name
     """
-    if 'homeworks' in response:
+    try:
         list_homework = response['homeworks']
-        if (isinstance(list_homework, list)):
-            return list_homework
-        else:
+        try:
+            if (isinstance(list_homework, list)):
+                return list_homework
+        except Exception:
             logging.info('Тип данных, полученного ответа,'
                          'не соответвует ожидаемому.')
-    else:
+    except Exception:
         logging.error('Отсутствие ожидаемых ключей в ответе API.')
 
 
