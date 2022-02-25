@@ -56,25 +56,14 @@ def get_api_answer(current_timestamp):
     """
     params = {'from_date': current_timestamp}
 
-    homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
-                                     params=params)
     try:
-        if homework_statuses.status_code == 200:
-            logging.info('Сервер выполнил запрос, как и ожидалось.')
-        elif homework_statuses.status_code == 100:
-            logging.info('Сервер подтверждает запрос.')
+        homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
+                                     params=params)
         answer = homework_statuses.json()
         homework_statuses.status_code
         return answer
     except Exception:
-        if homework_statuses.status_code == 300:
-            logging.error('Клиенту необходимо выполнить дальнейшие действия'
-                          'для завершения запроса.')
-        elif homework_statuses.status_code == 400:
-            logging.error('Клиент отправил неверный запрос.')
-        elif homework_statuses.status_code == 500:
-            logging.error('Серверу не удалось выполнить допустимый запрос'
-                          'из-за ошибки с сервером.')
+        logging.error('Нет доступа к эндпоину.')
 
 
 def check_response(response):
