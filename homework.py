@@ -57,7 +57,7 @@ def get_api_answer(current_timestamp):
     params = {'from_date': current_timestamp}
 
     homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
-                                         params=params)
+                                     params=params)
     try:
         if homework_statuses.status_code == 200:
             logging.info('Сервер выполнил запрос, как и ожидалось.')
