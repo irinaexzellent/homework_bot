@@ -88,11 +88,12 @@ def check_response(response):
                 return list_homework
             else:
                 logging.info('Тип данных, полученного ответа,'
-                                 'имеет некорректный тип.')
+                             'имеет некорректный тип.')
         else:
             logging.info('Ответ API не содержит ключа "homeworks".')
     else:
         logging.info('Ответ API содержит пустой словарь.')
+
 
 def parse_status(home):
     """Извлекает из информации о конкретной домашней работе статус этой работы.
