@@ -108,9 +108,9 @@ def parse_status(home):
 def check_tokens():
     """Проверяет доступность переменных окружения."""
     try:
-        if 'PRACTICUM_TOKEN' in os.environ:
-            if 'TELEGRAM_TOKEN' in os.environ:
-                if 'TELEGRAM_CHAT_ID' in os.environ:
+        if PRACTICUM_TOKEN == True:
+            if TELEGRAM_TOKEN == True:
+                if TELEGRAM_CHAT_ID == True:
                     return True
     except Exception:
         logging.critical('Отсутствие обязательных переменных окружения'
