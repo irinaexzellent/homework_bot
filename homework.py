@@ -7,7 +7,6 @@ import requests
 import telegram
 
 from dotenv import load_dotenv
-from http import HTTPStatus
 
 load_dotenv()
 
@@ -63,12 +62,12 @@ def get_api_answer(current_timestamp):
     try:
         homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
                                          params=params)
-        if homework_statuses.status_code == HTTPStatus.OK
+        if homework_statuses.status_code == HTTPStatus.OK:
             answer = homework_statuses.json()
             homework_statuses.status_code
             return answer
         else:
-            logging.error('Нет доступа к эндпоину.')
+            logging.error('Ошибочный код доступа.')
     except Exception:
         logging.error('Нет доступа к эндпоину.')
 
