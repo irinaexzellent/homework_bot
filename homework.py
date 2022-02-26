@@ -128,12 +128,12 @@ def parse_status(home):
 def check_tokens():
     """Проверяет доступность переменных окружения."""
     try:
-        for key in dotenv_values('.env'):
-            if not dotenv_values('.env').get(key):
-                return False
-            else:
-                return True
-    except Exception:
+        if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
+            return True
+        else:
+            return False
+    except:
+        logging.info('Отсутствуют необходимые переменные окружения.')
         raise PermissionError
 
 
@@ -155,6 +155,7 @@ def main():
     while check_variable:
         try:
             resp = get_api_answer(now)
+            print(resp)
             if len(resp['homeworks']) != 0:
                 check_answer = check_response(resp)
                 for i in check_answer:
