@@ -126,11 +126,13 @@ def parse_status(home):
 
 def check_tokens():
     """Проверяет доступность переменных окружения."""
-    if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
-        return True
-    else:
-        logging.info('Отсутствуют необходимые переменные окружения.')
-        raise PermissionError
+    env_vars = ["PRACTICUM_TOKEN",
+                "TELEGRAM_TOKEN",
+                "TELEGRAM_CHAT_ID"]
+    for var in env_vars:
+        if var not in os.environ:
+            raise EnvironmentError
+    return True
 
 
 def main():
