@@ -2,6 +2,7 @@ import logging
 import os
 
 import time
+import datetime
 import requests
 import telegram
 
@@ -141,24 +142,22 @@ def main():
     получить статус работы из обновления и отправить сообщение в Telegram.
     4.Подождать некоторое время и сделать новый запрос.
 
-    Ключевые аргументы:
-    bot -- объект класса Bot,
-    current_timestamp -- временная метка
     """
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
     check_variable = check_tokens()
+    now_datetime = datetime.datetime.now() - datetime.timedelta(30)
+    now = int(time.mktime(now_datetime.timetuple()))
 
     while check_variable:
         try:
-            resp = get_api_answer(current_timestamp)
+            resp = get_api_answer(now)
             if len(resp['homeworks']) != 0:
                 check_answer = check_response(resp)
                 for i in check_answer:
                     mess = parse_status(i)
                     send_message(bot, mess)
                     logging.info('Удачная отправка сообщения в Telegram.')
-                current_timestamp = int(time.time())
+                now = int(time.mktime(now_datetime.timetuple()))
                 time.sleep(RETRY_TIME)
             else:
                 logging.info('Отсутствие в ответе новых статусов.')
