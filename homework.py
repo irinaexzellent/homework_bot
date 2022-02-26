@@ -128,8 +128,8 @@ def parse_status(home):
 def check_tokens():
     """Проверяет доступность переменных окружения."""
     for key in dotenv_values('.env'):
-            if not dotenv_values('.env').get(key):
-                raise PermissionError
+        if not dotenv_values('.env').get(key):
+            raise PermissionError
     return True
 
 
