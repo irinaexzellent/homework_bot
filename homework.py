@@ -81,17 +81,13 @@ def check_response(response):
     date_updated, lesson_name
     """
     if response:
-        if 'homeworks' in response:
-            list_homework = response['homeworks']
-            if (isinstance(list_homework, list)):
-                return list_homework
-            else:
-                logging.error('Тип данных, полученного ответа,'
-                              'имеет некорректный тип.')
-                raise AttributeError
+        list_homework = response['homeworks']
+        if (isinstance(list_homework, list)):
+            return list_homework
         else:
-            logging.error('Ответ API не содержит ключа "homeworks".')
-            raise KeyError
+            logging.error('Тип данных, полученного ответа,'
+                          'имеет некорректный тип.')
+            raise AttributeError
     else:
         logging.error('Ответ API содержит пустой словарь.')
         raise ValueError
