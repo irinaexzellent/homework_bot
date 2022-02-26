@@ -7,6 +7,7 @@ import requests
 import telegram
 
 from dotenv import load_dotenv
+from dotenv import dotenv_values
 from http import HTTPStatus
 
 load_dotenv()
@@ -126,12 +127,9 @@ def parse_status(home):
 
 def check_tokens():
     """Проверяет доступность переменных окружения."""
-    env_vars = ["PRACTICUM_TOKEN",
-                "TELEGRAM_TOKEN",
-                "TELEGRAM_CHAT_ID"]
-    for var in env_vars:
-        if var not in os.environ:
-            raise EnvironmentError
+    for key in dotenv_values('.env'):
+            if not dotenv_values('.env').get(key):
+                raise PermissionError
     return True
 
 
