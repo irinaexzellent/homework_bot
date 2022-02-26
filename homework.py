@@ -7,7 +7,6 @@ import requests
 import telegram
 
 from dotenv import load_dotenv
-from dotenv import dotenv_values
 from http import HTTPStatus
 
 load_dotenv()
@@ -132,7 +131,7 @@ def check_tokens():
             return True
         else:
             return False
-    except:
+    except Exception:
         logging.info('Отсутствуют необходимые переменные окружения.')
         raise PermissionError
 
