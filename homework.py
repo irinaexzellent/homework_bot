@@ -1,4 +1,3 @@
-from http import HTTPStatus
 import logging
 import os
 
@@ -7,6 +6,7 @@ import requests
 import telegram
 
 from dotenv import load_dotenv
+from http import HTTPStatus
 
 load_dotenv()
 
@@ -53,23 +53,21 @@ def get_api_answer(current_timestamp):
     """Возвращает ответ API.
 
     Ключевые аргументы:
-    timestamp -- временная метка - текущее время,
+    current_timestamp -- временная метка - текущее время,
     params -- словарь параметров,
     answer -- ответ, преобразованный из формата JSON к типам данных Python
     """
     params = {'from_date': current_timestamp}
 
-    try:
-        homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
-                                         params=params)
-        if homework_statuses.status_code == HTTPStatus.OK:
-            answer = homework_statuses.json()
-            homework_statuses.status_code
-            return answer
-        else:
-            raise ValueError
-    except Exception:
-        logging.error('Нет доступа к эндпоину.')
+    homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
+                                     params=params)
+    if homework_statuses.status_code == HTTPStatus.OK:
+        answer = homework_statuses.json()
+        homework_statuses.status_code
+        return answer
+    else:
+        logging.error('API возвращает код, отличный от 200.')
+        raise ValueError
 
 
 def check_response(response):
@@ -81,18 +79,25 @@ def check_response(response):
     id, status, approved, homework_name, reviewer_comment,
     date_updated, lesson_name
     """
-    if response:
-        if 'homeworks' in response:
-            list_homework = response['homeworks']
-            if (isinstance(list_homework, list)):
-                return list_homework
+    if response.status_code == HTTPStatus.OK:
+        if response:
+            if 'homeworks' in response:
+                list_homework = response['homeworks']
+                if (isinstance(list_homework, list)):
+                    return list_homework
+                else:
+                    logging.error('Тип данных, полученного ответа,'
+                                  'имеет некорректный тип.')
+                    raise TypeError
             else:
-                logging.info('Тип данных, полученного ответа,'
-                             'имеет некорректный тип.')
+                logging.error('Ответ API не содержит ключа "homeworks".')
+                raise KeyError
         else:
-            logging.info('Ответ API не содержит ключа "homeworks".')
+            logging.error('Ответ API содержит пустой словарь.')
+            raise ValueError
     else:
-        logging.info('Ответ API содержит пустой словарь.')
+        logging.error('API возвращает код, отличный от 200.')
+        raise ValueError
 
 
 def parse_status(home):
@@ -105,7 +110,7 @@ def parse_status(home):
     if homework_status in HOMEWORK_STATUSES:
         for hw in HOMEWORK_STATUSES.keys():
             if hw == homework_status:
-                verdict = HOMEWORK_STATUSES['hw']
+                verdict = HOMEWORK_STATUSES['homework_status']
                 return (f'Изменился статус проверки '
                         f'работы "{homework_name}". {verdict}')
     else:
@@ -120,6 +125,7 @@ def check_tokens():
         return True
     else:
         logging.info('Отсутствуют необходимые переменные окружения.')
+        raise EnvironmentError
 
 
 def main():
@@ -130,6 +136,10 @@ def main():
     3.Если есть обновления —
     получить статус работы из обновления и отправить сообщение в Telegram.
     4.Подождать некоторое время и сделать новый запрос.
+
+    Ключевые аргументы:
+    bot -- объект класса Bot,
+    current_timestamp -- временная метка
     """
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
@@ -138,7 +148,6 @@ def main():
     while check_variable:
         try:
             resp = get_api_answer(current_timestamp)
-            print(resp)
             if len(resp['homeworks']) != 0:
                 check_answer = check_response(resp)
                 for i in check_answer:
@@ -149,10 +158,11 @@ def main():
                 time.sleep(RETRY_TIME)
             else:
                 logging.info('Отсутствие в ответе новых статусов.')
-        except Exception as error:
-            message = f'Сбой в работе программы: {error}'
+        except Exception as e:
+            message = f'Сбой в работе программы: {e}'
             send_message(bot, message)
             time.sleep(RETRY_TIME)
+            continue
         else:
             logging.info('Код выполнен без ошибок.')
 
