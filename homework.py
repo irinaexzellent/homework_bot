@@ -67,7 +67,7 @@ def get_api_answer(current_timestamp):
             homework_statuses.status_code
             return answer
         else:
-            logging.error('Ошибочный код доступа.')
+            raise ValueError
     except Exception:
         logging.error('Нет доступа к эндпоину.')
 
@@ -109,8 +109,7 @@ def parse_status(home):
                 return (f'Изменился статус проверки '
                         f'работы "{homework_name}". {verdict}')
             else:
-                logging.error('Ответ API не содержит'
-                              'ключа "homewroks".')
+                raise KeyError
     except Exception:
         logging.error('Недокументированный статус'
                       'домашней работы в ответе API.')
