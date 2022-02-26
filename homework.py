@@ -130,6 +130,7 @@ def check_tokens():
     for key in dotenv_values('.env'):
         if not dotenv_values('.env').get(key):
             raise PermissionError
+        return False
     return True
 
 
