@@ -17,7 +17,7 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 MANDATORY_ENV_VARS = ["PRACTICUM_TOKEN", "TELEGRAM_TOKEN", "TELEGRAM_CHAT_ID"]
 
-RETRY_TIME = 600
+RETRY_TIME = 6
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -88,7 +88,7 @@ def check_response(response):
                 else:
                     logging.error('Тип данных, полученного ответа,'
                                   'имеет некорректный тип.')
-                    raise TypeError
+                    raise AttributeError
             else:
                 logging.error('Ответ API не содержит ключа "homeworks".')
                 raise KeyError
@@ -97,7 +97,7 @@ def check_response(response):
             raise ValueError
     else:
         logging.error('API возвращает код, отличный от 200.')
-        raise ValueError
+        raise AttributeError
 
 
 def parse_status(home):
@@ -108,11 +108,19 @@ def parse_status(home):
     homework_status = home['status']
 
     if homework_status in HOMEWORK_STATUSES:
-        for hw in HOMEWORK_STATUSES.keys():
-            if hw == homework_status:
-                verdict = HOMEWORK_STATUSES['homework_status']
-                return (f'Изменился статус проверки '
-                        f'работы "{homework_name}". {verdict}')
+        if homework_status == 'approved':
+            verdict = HOMEWORK_STATUSES[homework_status]
+            return (f'Изменился статус проверки '
+                    f'работы "{homework_name}". {verdict}')
+        elif homework_status == 'reviewing':
+            verdict = HOMEWORK_STATUSES[homework_status]
+            return (f'Изменился статус проверки '
+                    f'работы "{homework_name}". {verdict}')
+        else:
+            homework_status == 'rejected'
+            verdict = HOMEWORK_STATUSES[homework_status]
+            return (f'Изменился статус проверки '
+                    f'работы "{homework_name}". {verdict}')
     else:
         logging.error('Недокументированный статус'
                       'домашней работы в ответе API.')
@@ -125,7 +133,7 @@ def check_tokens():
         return True
     else:
         logging.info('Отсутствуют необходимые переменные окружения.')
-        raise EnvironmentError
+        raise OSError
 
 
 def main():
