@@ -131,10 +131,10 @@ def check_tokens():
         for key in dotenv_values('.env'):
             if not dotenv_values('.env').get(key):
                 return False
+            else:
+                return True
     except Exception:
         raise PermissionError
-    else:
-        return True
 
 
 def main():
