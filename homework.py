@@ -79,25 +79,21 @@ def check_response(response):
     id, status, approved, homework_name, reviewer_comment,
     date_updated, lesson_name
     """
-    if response.status_code == HTTPStatus.OK:
-        if response:
-            if 'homeworks' in response:
-                list_homework = response['homeworks']
-                if (isinstance(list_homework, list)):
-                    return list_homework
-                else:
-                    logging.error('Тип данных, полученного ответа,'
-                                  'имеет некорректный тип.')
-                    raise AttributeError
+    if response:
+        if 'homeworks' in response:
+            list_homework = response['homeworks']
+            if (isinstance(list_homework, list)):
+                return list_homework
             else:
-                logging.error('Ответ API не содержит ключа "homeworks".')
-                raise KeyError
+                logging.error('Тип данных, полученного ответа,'
+                              'имеет некорректный тип.')
+                raise AttributeError
         else:
-            logging.error('Ответ API содержит пустой словарь.')
-            raise ValueError
+            logging.error('Ответ API не содержит ключа "homeworks".')
+            raise KeyError
     else:
-        logging.error('API возвращает код, отличный от 200.')
-        raise AttributeError
+        logging.error('Ответ API содержит пустой словарь.')
+        raise ValueError
 
 
 def parse_status(home):
@@ -133,7 +129,7 @@ def check_tokens():
         return True
     else:
         logging.info('Отсутствуют необходимые переменные окружения.')
-        raise OSError
+        raise PermissionError
 
 
 def main():
