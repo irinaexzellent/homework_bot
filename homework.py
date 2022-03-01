@@ -148,7 +148,6 @@ def main():
     while check_variable:
         try:
             resp = get_api_answer(now)
-            print(resp)
             if len(resp['homeworks']) != 0:
                 check_answer = check_response(resp)
                 for i in check_answer:
