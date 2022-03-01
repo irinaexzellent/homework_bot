@@ -1,4 +1,4 @@
-import logging
+import logging.basicConfig
 import os
 
 import time
@@ -6,8 +6,12 @@ import datetime
 import requests
 import telegram
 
+from telegram import Bot
+
 from dotenv import load_dotenv
 from http import HTTPStatus
+
+from typing import Dict, List, Optional
 
 load_dotenv()
 
@@ -16,18 +20,20 @@ PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-MANDATORY_ENV_VARS = ["PRACTICUM_TOKEN", "TELEGRAM_TOKEN", "TELEGRAM_CHAT_ID"]
 
-RETRY_TIME = 6
-ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
+RETRY_TIME: int = 6
+ENDPOINT: str = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
 
 HOMEWORK_STATUSES = {
     'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
     'reviewing': 'Работа взята на проверку ревьюером.',
-    'rejected': 'Работа проверена: у ревьюера есть замечания.'
+    'rejected': 'Работа проверена: у ревьюера есть замечания.',
 }
+
+TEXTMESSAGE: str = 'Изменился статус проверки работы'
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -37,7 +43,7 @@ logging.basicConfig(
 )
 
 
-def send_message(bot, message):
+def send_message(bot: Bot, *args) -> Bot:
     """Отправляет в Telegram чат сообщение.
 
     Ключевые аргументы:
@@ -45,12 +51,13 @@ def send_message(bot, message):
     message -- текстовое сообщение - тип str
     """
     try:
-        return bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+        arg_name = bot.send_message(chat_id=args[0], text=args[1])
+        return arg_name
     except Exception:
         logging.error('Cбой при отправке сообщения в Telegram.')
 
 
-def get_api_answer(current_timestamp):
+def get_api_answer(current_timestamp: int) -> Optional[Dict]:
     """Возвращает ответ API.
 
     Ключевые аргументы:
@@ -60,8 +67,7 @@ def get_api_answer(current_timestamp):
     """
     params = {'from_date': current_timestamp}
 
-    homework_statuses = requests.get(ENDPOINT, headers=HEADERS,
-                                     params=params)
+    homework_statuses = requests.get(ENDPOINT, headers=HEADERS, params=params)
     if homework_statuses.status_code == HTTPStatus.OK:
         answer = homework_statuses.json()
         homework_statuses.status_code
@@ -71,7 +77,7 @@ def get_api_answer(current_timestamp):
         raise ValueError
 
 
-def check_response(response):
+def check_response(response: Optional[Dict]):
     """Функция возвращает список домашних работ.
 
     Ключевые аргументы:
@@ -93,7 +99,7 @@ def check_response(response):
         raise ValueError
 
 
-def parse_status(home):
+def parse_status(home: List) -> str:
     """Извлекает из информации о конкретной домашней работе статус этой работы.
     Возвращает строку для отправки в Telegram чат
     """
@@ -101,26 +107,18 @@ def parse_status(home):
     homework_status = home['status']
 
     if homework_status in HOMEWORK_STATUSES:
-        if homework_status == 'approved':
+        if (homework_status == 'approved' or
+                homework_status == 'reviewing' or
+                homework_status == 'rejected'):
             verdict = HOMEWORK_STATUSES[homework_status]
-            return (f'Изменился статус проверки '
-                    f'работы "{homework_name}". {verdict}')
-        elif homework_status == 'reviewing':
-            verdict = HOMEWORK_STATUSES[homework_status]
-            return (f'Изменился статус проверки '
-                    f'работы "{homework_name}". {verdict}')
-        else:
-            homework_status == 'rejected'
-            verdict = HOMEWORK_STATUSES[homework_status]
-            return (f'Изменился статус проверки '
-                    f'работы "{homework_name}". {verdict}')
+            return (f'{TEXTMESSAGE} "{homework_name}". {verdict}')
     else:
         logging.error('Недокументированный статус'
                       'домашней работы в ответе API.')
         raise KeyError
 
 
-def check_tokens():
+def check_tokens() -> bool:
     """Проверяет доступность переменных окружения."""
     try:
         if PRACTICUM_TOKEN and TELEGRAM_TOKEN and TELEGRAM_CHAT_ID:
@@ -155,7 +153,7 @@ def main():
                 check_answer = check_response(resp)
                 for i in check_answer:
                     mess = parse_status(i)
-                    send_message(bot, mess)
+                    send_message(bot, TELEGRAM_CHAT_ID, mess)
                     logging.info('Удачная отправка сообщения в Telegram.')
                 now = int(time.mktime(now_datetime.timetuple()))
                 time.sleep(RETRY_TIME)
@@ -163,7 +161,7 @@ def main():
                 logging.info('Отсутствие в ответе новых статусов.')
         except Exception as e:
             message = f'Сбой в работе программы: {e}'
-            send_message(bot, message)
+            send_message(bot, TELEGRAM_CHAT_ID, message)
             time.sleep(RETRY_TIME)
             continue
         else:
