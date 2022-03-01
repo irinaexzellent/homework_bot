@@ -108,8 +108,8 @@ def parse_status(home: List) -> str:
 
     if homework_status in HOMEWORK_STATUSES:
         if (homework_status == 'approved' or
-                homework_status == 'reviewing' or
-                homework_status == 'rejected'):
+            homework_status == 'reviewing' or
+            homework_status == 'rejected'):
             verdict = HOMEWORK_STATUSES[homework_status]
             return (f'{TEXTMESSAGE} "{homework_name}". {verdict}')
     else:
