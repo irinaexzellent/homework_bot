@@ -6,4 +6,4 @@ Telegram-бот, который раз в 10 минут опрашивает API
 
 ## АВТОР
 
-* **Ирина Иконникова** -  [IrinaIkonnikova](https://github.com/irinaexzellent)
+**Ирина Иконникова** -  [IrinaIkonnikova](https://github.com/irinaexzellent)
